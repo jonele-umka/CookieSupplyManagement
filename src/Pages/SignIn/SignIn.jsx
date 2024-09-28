@@ -39,7 +39,6 @@ const defaultTheme = createTheme();
 export default function SignIn() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [error, setError] = React.useState("");
 
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -55,11 +54,10 @@ export default function SignIn() {
       if (response.type === "auth/loginUser/fulfilled") {
         navigate("/main");
       } else {
-        setError(response.payload);
+        console.log(response.payload);
       }
     } catch (error) {
       console.error("Ошибка при входе:", error);
-      setError(error.message);
     }
   };
 
@@ -114,18 +112,6 @@ export default function SignIn() {
             >
               Войти
             </Button>
-            {/* <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Забыли пароль?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid> */}
           </Box>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
