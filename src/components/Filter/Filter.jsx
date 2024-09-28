@@ -47,15 +47,6 @@ function Filter({ setStatisticsData }) {
     return new Date().toISOString().split("T")[0];
   };
 
-  // Устанавливаем начальные даты при загрузке компонента
-  useEffect(() => {
-    const today = getToday();
-    const sixMonthsAgo = getSixMonthsAgo(today);
-    setValue("date_end", today);
-    setValue("date_start", sixMonthsAgo);
-    fetchStatistics(sixMonthsAgo, today, "", ""); // начальная загрузка данных
-  }, [setValue]);
-
   // Выполнение запроса и установка данных статистики
   const fetchStatistics = async (date_start, date_end, store_id, cookie_id) => {
     try {
@@ -80,6 +71,15 @@ function Filter({ setStatisticsData }) {
       console.error("Ошибка при загрузке данных:", error);
     }
   };
+  // Устанавливаем начальные даты при загрузке компонента
+  useEffect(() => {
+    const today = getToday();
+    const sixMonthsAgo = getSixMonthsAgo(today);
+    setValue("date_end", today);
+    setValue("date_start", sixMonthsAgo);
+    fetchStatistics(sixMonthsAgo, today, "", ""); // начальная загрузка данных
+  }, [setValue]);
+
 
   // Обработка отправки формы
   const onSubmit = (data) => {
