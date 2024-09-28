@@ -1,5 +1,5 @@
 // Импортируйте useEffect и useState
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styles from "./StatisticPage.module.css";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -53,41 +53,42 @@ function StatisticPage() {
   };
 
   // Выполнение запроса и установка данных статистики
-  const fetchStatistics = async (date_start, date_end, store_id, cookie_id) => {
-    try {
-      // Если store_id пустой, передайте значение по умолчанию, чтобы получить данные для всех магазинов
-      const response = await fetch(
-        `http://91.218.140.135:8080/api/statistics/base_info?date_start=${date_start}&date_end=${date_end}&store_id=${
-          store_id || ""
-        }&cookie_id=${cookie_id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+  const fetchStatistics = useCallback(
+    async (date_start, date_end, store_id, cookie_id) => {
+      try {
+        const response = await fetch(
+          `http://91.218.140.135:8080/api/statistics/base_info?date_start=${date_start}&date_end=${date_end}&store_id=${
+            store_id || ""
+          }&cookie_id=${cookie_id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Ошибка: ${response.status}`);
         }
-      );
 
-      if (!response.ok) {
-        throw new Error(`Ошибка: ${response.status}`);
+        const result = await response.json();
+        setStatisticsData(result);
+      } catch (error) {
+        console.error("Ошибка при загрузке данных:", error);
       }
+    },
+    [token]
+  );
 
-      const result = await response.json();
-      setStatisticsData(result);
-    } catch (error) {
-      console.error("Ошибка при загрузке данных:", error);
-    }
-  };
-  // Устанавливаем начальные даты при загрузке компонента
   useEffect(() => {
     const today = getToday();
     const sixMonthsAgo = getSixMonthsAgo(today);
     setValue("date_end", today);
     setValue("date_start", sixMonthsAgo);
     fetchStatistics(sixMonthsAgo, today, "", ""); // начальная загрузка данных
-  }, [setValue]);
-
+  }, [setValue, fetchStatistics]); // безопасно добавляем fetchStatistics в зависимости
 
   // Обработка отправки формы
   const onSubmit = (data) => {

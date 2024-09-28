@@ -72,12 +72,10 @@ const Chart = ({ date_start, date_end }) => {
     if (date_start && date_end) {
       fetchSalesData();
     }
-  }, [date_start, date_end]);
+  }, [date_start, date_end, token]);
 
   return (
     <div style={{ width: "100%", height: "400px" }}>
-      {" "}
-      {/* Контейнер для диаграммы */}
       <Bar
         data={chartData}
         options={{

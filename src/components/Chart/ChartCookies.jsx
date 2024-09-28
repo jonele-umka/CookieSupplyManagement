@@ -78,7 +78,7 @@ const ChartCookies = ({ date_start, date_end, store_id }) => {
     if (date_start && date_end) {
       fetchSalesDataByCookie();
     }
-  }, [date_start, date_end, store_id]);
+  }, [date_start, date_end, store_id, token]);
 
   return (
     <div style={{ width: "100%", height: "400px" }}>
