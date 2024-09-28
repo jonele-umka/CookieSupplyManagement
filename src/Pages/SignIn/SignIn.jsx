@@ -14,7 +14,8 @@ import { FaUnlockAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../../Store/authSlice/authSlice";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function Copyright(props) {
   return (
     <Typography
@@ -53,10 +54,10 @@ export default function SignIn() {
       if (response.type === "auth/loginUser/fulfilled") {
         navigate("/main");
       } else {
-        console.log(response.payload);
+        toast.error(response.payload);
       }
     } catch (error) {
-      console.error("Ошибка при входе:", error);
+      toast.error(error);
     }
   };
 
