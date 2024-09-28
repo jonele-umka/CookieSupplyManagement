@@ -22,7 +22,6 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
 import PointOfSaleRoundedIcon from "@mui/icons-material/PointOfSaleRounded";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import { ToastContainer } from "react-toastify";
 const drawerWidth = 240;
 
 function ResponsiveDrawer(props) {
@@ -82,7 +81,6 @@ function ResponsiveDrawer(props) {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <ToastContainer />
       <CssBaseline />
       <AppBar
         position="fixed"

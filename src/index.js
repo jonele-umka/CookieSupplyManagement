@@ -12,6 +12,7 @@ import Main from "./Pages/Main/Main";
 import { loginUser } from "./Store/authSlice/authSlice";
 import store from "./Store/store";
 import "./index.css";
+import { ToastContainer } from "react-toastify";
 
 const Navigator = () => {
   const dispatch = useDispatch();
@@ -73,6 +74,7 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <Navigator />
+      <ToastContainer />
     </Provider>
   </React.StrictMode>
 );

@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const API_URL = process.env.API_URL;
 
 // Асинхронные действия (thunks)
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (userData, { rejectWithValue }) => {
-    console.log(userData);
     try {
       const response = await fetch(
         `http://91.218.140.135:8080/api/user/login`,
@@ -23,7 +23,7 @@ export const loginUser = createAsyncThunk(
         const responseDataError = await response.json();
         const errorMessage =
           responseDataError.error.Message || "Произошла ошибка";
-        console.log(responseDataError);
+
         return rejectWithValue(errorMessage);
       }
 
@@ -38,7 +38,6 @@ export const loginUser = createAsyncThunk(
 
       return { token, username };
     } catch (error) {
-      console.log(error);
       return rejectWithValue(error.toString());
     }
   }
@@ -92,13 +91,16 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+       
         state.token = action.payload.token;
         state.userProfile = action.payload.username;
         state.loading = false;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        console.log('fefe',action.payload)
         state.loading = false;
         state.error = action.payload;
+        toast.error(`Ошибка авторизации: ${action.payload}`);   
       })
 
       .addCase(logoutUser.pending, (state) => {
@@ -108,10 +110,12 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.loading = false;
         state.token = null;
+        toast.success("Вы успешно вышли из системы");  
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        toast.error(`Ошибка выхода: ${action.payload}`);   
       });
   },
 });
