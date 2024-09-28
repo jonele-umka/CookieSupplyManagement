@@ -1,0 +1,8 @@
+.filter {
+  margin-bottom: 20px;
+}
+.filterDate {
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
+}
