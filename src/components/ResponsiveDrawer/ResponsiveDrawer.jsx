@@ -22,6 +22,10 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
 import PointOfSaleRoundedIcon from "@mui/icons-material/PointOfSaleRounded";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import Button from "@mui/material/Button";
+import ProfilePage from "../../Pages/ProfilePage/ProfilePage";
+
 const drawerWidth = 240;
 
 function ResponsiveDrawer(props) {
@@ -56,22 +60,25 @@ function ResponsiveDrawer(props) {
       </Toolbar>
       <Divider />
       <List>
-        {["Склад", "Магазины", "Продажи", "Статистика"].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton
-              onClick={() => handleMenuItemClick(index)}
-              selected={selectedIndex === index}
-            >
-              <ListItemIcon>
-                {index === 0 && <WarehouseIcon />}
-                {index === 1 && <LocalGroceryStoreIcon />}
-                {index === 2 && <PointOfSaleRoundedIcon />}
-                {index === 3 && <BarChartIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {["Склад", "Магазины", "Продажи", "Статистика", "Профиль"].map(
+          (text, index) => (
+            <ListItem key={text} disablePadding>
+              <ListItemButton
+                onClick={() => handleMenuItemClick(index)}
+                selected={selectedIndex === index}
+              >
+                <ListItemIcon>
+                  {index === 0 && <WarehouseIcon />}
+                  {index === 1 && <LocalGroceryStoreIcon />}
+                  {index === 2 && <PointOfSaleRoundedIcon />}
+                  {index === 3 && <BarChartIcon />}
+                  {index === 4 && <AccountCircleIcon />}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItemButton>
+            </ListItem>
+          )
+        )}
       </List>
     </div>
   );
@@ -164,6 +171,7 @@ function ResponsiveDrawer(props) {
         {selectedIndex === 1 && <StoresPages />}
         {selectedIndex === 2 && <SalePages />}
         {selectedIndex === 3 && <StatisticPage />}
+        {selectedIndex === 4 && <ProfilePage />}
       </Box>
     </Box>
   );
