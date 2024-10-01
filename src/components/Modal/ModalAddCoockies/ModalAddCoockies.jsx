@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCookies,
   postCookie,
-  postWeight,
 } from "../../../Store/сookieSlice/cookieSlice";
 
 const style = {
@@ -34,28 +33,16 @@ const ModalAddCoockies = ({ open, handleClose }) => {
 
   const onSubmit = async (data) => {
     try {
-      // Первый запрос на добавление веса
-      const weightResponse = await dispatch(
-        postWeight({ weight: data.weight, token })
-      ).unwrap();
-
-      // Получение ID типа после добавления веса
-      const weightId = weightResponse.id;
-
-      // Второй запрос на добавление партии с использованием weightId
       await dispatch(
         postCookie({
           token,
           cookieData: {
             name: data.name,
-            type_id: parseInt(weightId),
-            quantity: parseInt(data.quantity),
             price: String(data.price),
           },
         })
       ).unwrap();
 
-      // Обновление списка печений
       dispatch(fetchCookies({ token, page: 1, pageSize: 10 }));
 
       reset();
@@ -87,49 +74,17 @@ const ModalAddCoockies = ({ open, handleClose }) => {
             {errors.name && <p className="error">{errors.name.message}</p>}
           </div>
 
-          <div className="formGroup select">
-            <label htmlFor="weight">Вид печенья (по кг):</label>
-            <select
-              id="weight"
-              {...register("weight", {
+          <div className="formGroup">
+            <label htmlFor="price">Цена:</label>
+            <input
+              type="number"
+              id="price"
+              {...register("price", {
                 required: "Поле обязательна для заполнения",
+                valueAsNumber: true,
               })}
-            >
-              <option value="">Выберите...</option>
-              <option value="0.5">5 кг</option>
-              <option value="0.3">3 кг</option>
-            </select>
-            {errors.weight && <p className="error">{errors.weight.message}</p>}
-          </div>
-
-          <div className="priceBlock">
-            <div className="formGroup formGroupLast">
-              <label htmlFor="quantity">Количество:</label>
-              <input
-                type="number"
-                id="quantity"
-                {...register("quantity", {
-                  required: "Поле обязательна для заполнения",
-                  valueAsNumber: true,
-                })}
-              />
-              {errors.quantity && (
-                <p className="error">{errors.quantity.message}</p>
-              )}
-            </div>
-
-            <div className="formGroup formGroupLast">
-              <label htmlFor="price">Цена:</label>
-              <input
-                type="number"
-                id="price"
-                {...register("price", {
-                  required: "Поле обязательна для заполнения",
-                  valueAsNumber: true,
-                })}
-              />
-              {errors.price && <p className="error">{errors.price.message}</p>}
-            </div>
+            />
+            {errors.price && <p className="error">{errors.price.message}</p>}
           </div>
 
           <div

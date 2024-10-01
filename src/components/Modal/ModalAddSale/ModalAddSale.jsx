@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchSale, postSale } from "../../../Store/saleSlice/saleSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -28,7 +29,19 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
     handleSubmit,
     reset,
     formState: { errors },
+    setValue, // Функция для программного изменения значений полей
   } = useForm();
+
+  const [selectedCookie, setSelectedCookie] = useState(null);
+
+  // Инициализация первого печенья
+  useEffect(() => {
+    if (cookies && cookies.data?.length > 0) {
+      const firstCookie = cookies.data[0];
+      setSelectedCookie(firstCookie);
+      setValue("price", firstCookie.price); // Устанавливаем цену первого печенья
+    }
+  }, [cookies, setValue]);
 
   const onSubmit = async (data) => {
     try {
@@ -40,6 +53,7 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
             store_id: parseInt(data.store_id),
             quantity: data.quantity,
             date: data.date,
+            price: data.price,
           },
         })
       ).unwrap();
@@ -52,6 +66,17 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
       toast.error(error);
     }
   };
+
+  const handleCookieChange = (event) => {
+    const cookieId = parseInt(event.target.value);
+    const cookie = cookies.data.find((cookie) => cookie.id === cookieId);
+
+    if (cookie) {
+      setSelectedCookie(cookie);
+      setValue("price", cookie.price); // Устанавливаем цену выбранного печенья
+    }
+  };
+
   const today = new Date().toISOString().split("T")[0];
 
   return (
@@ -71,6 +96,7 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
               {...register("cookie_id", {
                 required: "Поле обязательна для заполнения",
               })}
+              onChange={handleCookieChange} // Обработчик выбора печенья
             >
               {cookies &&
                 cookies.data?.length > 0 &&
@@ -85,7 +111,7 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
             )}
           </div>
           <div className="formGroup select">
-            <label htmlFor="cookie_id">Название магазина:</label>
+            <label htmlFor="store_id">Название магазина:</label>
             <select
               id="store_id"
               {...register("store_id", {
@@ -104,7 +130,20 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
               <p className="error">{errors.store_id.message}</p>
             )}
           </div>
-
+          <div className="formGroup">
+            <label htmlFor="price">Цена:</label>
+            <input
+              type="number"
+              id="price"
+              {...register("price", {
+                required: "Поле обязательна для заполнения",
+                valueAsNumber: true,
+              })}
+              value={selectedCookie?.price || ""} // Отображаем цену выбранного печенья
+              readOnly // Поле только для чтения
+            />
+            {errors.price && <p className="error">{errors.price.message}</p>}
+          </div>
           <div className="formGroup">
             <label htmlFor="quantity">Количество:</label>
             <input
@@ -132,7 +171,7 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
             />
             {errors.date && <p className="error">{errors.date.message}</p>}
           </div>
-          {/* {saleStatus === "failed" && <p className="error">{saleError}</p>} */}
+
           <div
             style={{
               display: "flex",
