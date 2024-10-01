@@ -56,7 +56,7 @@ function ResponsiveDrawer(props) {
       </Toolbar>
       <Divider />
       <List>
-        {["Склад", "Продажи", "Магазины", "Статистика"].map((text, index) => (
+        {["Склад", "Магазины", "Продажи", "Статистика"].map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton
               onClick={() => handleMenuItemClick(index)}
@@ -161,8 +161,8 @@ function ResponsiveDrawer(props) {
       >
         <Toolbar />
         {selectedIndex === 0 && <WarehousePages />}
-        {selectedIndex === 1 && <SalePages />}
-        {selectedIndex === 2 && <StoresPages />}
+        {selectedIndex === 1 && <StoresPages />}
+        {selectedIndex === 2 && <SalePages />}
         {selectedIndex === 3 && <StatisticPage />}
       </Box>
     </Box>

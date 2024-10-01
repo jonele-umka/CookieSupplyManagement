@@ -60,7 +60,7 @@ const ModalAddCoockies = ({ open, handleClose }) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <h1 className="headText">Добавить новую партию</h1>
+        <h1 className="headText">Добавить </h1>
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           <div className="formGroup">
             <label htmlFor="name">Вид печенья (название):</label>
@@ -95,7 +95,7 @@ const ModalAddCoockies = ({ open, handleClose }) => {
             }}
           >
             <Button type="submit" variant="contained" color="primary">
-              Добавить партию
+              Добавить
             </Button>
           </div>
         </form>

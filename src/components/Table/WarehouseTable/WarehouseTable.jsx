@@ -53,10 +53,6 @@ export default function WarehouseTable({ cookies, token }) {
               <StyledTableCell>№</StyledTableCell>
               <StyledTableCell>Название печенья</StyledTableCell>
               <StyledTableCell align="right">Цена</StyledTableCell>
-              <StyledTableCell align="right">
-                Количество коробок
-              </StyledTableCell>
-              <StyledTableCell align="right">Килограмм печенья</StyledTableCell>
               <StyledTableCell align="right">Дата добавления</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -68,12 +64,6 @@ export default function WarehouseTable({ cookies, token }) {
                 </StyledTableCell>
                 <StyledTableCell>{cookie?.name}</StyledTableCell>
                 <StyledTableCell align="right">{cookie?.price}</StyledTableCell>
-                <StyledTableCell align="right">
-                  {cookie?.quantity}
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  {cookie?.type?.weight}
-                </StyledTableCell>
                 <StyledTableCell align="right">
                   {formatDate(cookie?.createdAt)}
                 </StyledTableCell>

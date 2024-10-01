@@ -16,7 +16,7 @@ console.log(stores)
       <h1 className="title">Магазины</h1>
 
       <div className="totalBlock">
-        <h1 className="total">Количество товара: {stores.total}</h1>
+        <h1 className="total">Количество: {stores.total}</h1>
 
         <button
           variant="contained"
@@ -24,7 +24,7 @@ console.log(stores)
           className="addButton"
           onClick={handleOpenMainModal}
         >
-          Добавить магазин
+          Добавить
         </button>
       </div>
 

@@ -27,10 +27,10 @@ export const SalePages = () => {
     <div className="page">
       <h1 className="title">Продажи</h1>
       <div className="totalBlock">
-        <h1 className="total">Количество товара: {sale.total}</h1>
+        <h1 className="total">Количество: {sale.total}</h1>
 
         <button className="addButton" onClick={handleOpenMainModal}>
-          Добавить партию
+          Добавить
         </button>
       </div>
       <SaleTable sale={sale} token={token} />

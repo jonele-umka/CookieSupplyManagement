@@ -99,7 +99,7 @@ const ModalAddStore = ({ open, handleClose }) => {
             )}
           </div>
 
-          <div className="formGroup formGroupLast">
+          <div className="formGroup">
             <label htmlFor="phone_number">Номер телефона:</label>
             <input
               type="text"
@@ -112,7 +112,17 @@ const ModalAddStore = ({ open, handleClose }) => {
               <p className="error">{errors.phone_number.message}</p>
             )}
           </div>
-
+          <div className="formGroup formGroupLast">
+            <label htmlFor="debt">Долг:</label>
+            <input
+              type="number"
+              id="debt"
+              {...register("debt", {
+                required: "Поле обязательна для заполнения",
+              })}
+            />
+            {errors.debt && <p className="error">{errors.debt.message}</p>}
+          </div>
           <div
             style={{
               display: "flex",
@@ -121,7 +131,7 @@ const ModalAddStore = ({ open, handleClose }) => {
             }}
           >
             <Button type="submit" variant="contained" color="primary">
-              Добавить партию
+              Добавить
             </Button>
           </div>
         </form>

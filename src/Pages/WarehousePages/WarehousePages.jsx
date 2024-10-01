@@ -22,7 +22,7 @@ export const WarehousePages = () => {
       <h1 className="title">Склад</h1>
 
       <div className="totalBlock">
-        <h1 className="total">Количество товара: {cookies?.total}</h1>
+        <h1 className="total">Количество: {cookies?.total}</h1>
 
         <button
           variant="contained"
@@ -30,7 +30,7 @@ export const WarehousePages = () => {
           className="addButton"
           onClick={handleOpenMainModal}
         >
-          Добавить партию
+          Добавить
         </button>
       </div>
 

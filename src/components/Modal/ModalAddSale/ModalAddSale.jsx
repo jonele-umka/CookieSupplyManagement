@@ -34,12 +34,11 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
 
   const [selectedCookie, setSelectedCookie] = useState(null);
 
-  // Инициализация первого печенья
   useEffect(() => {
     if (cookies && cookies.data?.length > 0) {
       const firstCookie = cookies.data[0];
       setSelectedCookie(firstCookie);
-      setValue("price", firstCookie.price); // Устанавливаем цену первого печенья
+      setValue("price_per_unit", firstCookie.price);
     }
   }, [cookies, setValue]);
 
@@ -53,7 +52,7 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
             store_id: parseInt(data.store_id),
             quantity: data.quantity,
             date: data.date,
-            price: data.price,
+            price_per_unit: data.price_per_unit,
           },
         })
       ).unwrap();
@@ -70,10 +69,9 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
   const handleCookieChange = (event) => {
     const cookieId = parseInt(event.target.value);
     const cookie = cookies.data.find((cookie) => cookie.id === cookieId);
-
     if (cookie) {
       setSelectedCookie(cookie);
-      setValue("price", cookie.price); // Устанавливаем цену выбранного печенья
+      setValue("price_per_unit", cookie.price);
     }
   };
 
@@ -87,7 +85,7 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <h1 className="headText">Добавить новую партию</h1>
+        <h1 className="headText">Добавить</h1>
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           <div className="formGroup select">
             <label htmlFor="cookie_id">Вид печенья (по кг):</label>
@@ -96,7 +94,7 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
               {...register("cookie_id", {
                 required: "Поле обязательна для заполнения",
               })}
-              onChange={handleCookieChange} // Обработчик выбора печенья
+              onChange={handleCookieChange}
             >
               {cookies &&
                 cookies.data?.length > 0 &&
@@ -131,18 +129,19 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
             )}
           </div>
           <div className="formGroup">
-            <label htmlFor="price">Цена:</label>
+            <label htmlFor="price_per_unit">Цена за единицу:</label>
             <input
               type="number"
-              id="price"
-              {...register("price", {
+              id="price_per_unit"
+              {...register("price_per_unit", {
                 required: "Поле обязательна для заполнения",
                 valueAsNumber: true,
               })}
-              value={selectedCookie?.price || ""} // Отображаем цену выбранного печенья
-              readOnly // Поле только для чтения
+              defaultValue={selectedCookie?.price || ""}
             />
-            {errors.price && <p className="error">{errors.price.message}</p>}
+            {errors.price_per_unit && (
+              <p className="error">{errors.price_per_unit.message}</p>
+            )}
           </div>
           <div className="formGroup">
             <label htmlFor="quantity">Количество:</label>
@@ -180,7 +179,7 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
             }}
           >
             <Button type="submit" variant="contained" color="primary">
-              Добавить партию
+              Добавить
             </Button>
           </div>
         </form>
