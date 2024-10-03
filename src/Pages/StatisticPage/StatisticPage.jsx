@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styles from "./StatisticPage.module.css";
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   Button,
   TextField,
@@ -11,21 +11,65 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { fetchCookies } from "../../Store/сookieSlice/cookieSlice";
-import { fetchStore } from "../../Store/storeSlice/storeSlice";
+
 import Chart from "../../components/Chart/Chart";
 import ChartCookies from "../../components/Chart/ChartCookies";
 
 function StatisticPage() {
-  const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
-  const stores = useSelector((state) => state.store.store);
-  const cookies = useSelector((state) => state.cookies.cookies);
+  const [cookies, setCookies] = useState(null);
+  const [stores, setStores] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchCookies(token));
-    dispatch(fetchStore(token));
-  }, [token, dispatch]);
+    const fetchSale = async () => {
+      try {
+        const response = await fetch(`http://91.218.140.135:8080/api/sale`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const result = await response.json();
+
+        setCookies(result);
+        return result;
+      } catch (error) {
+        console.error("Fetch sale error:", error.message);
+        throw error;
+      }
+    };
+    const fetchStore = async () => {
+      try {
+        const response = await fetch(`http://91.218.140.135:8080/api/store`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const result = await response.json();
+        console.log("result", result);
+        setStores(result);
+        return result;
+      } catch (error) {
+        console.error("Fetch store error:", error.message);
+        throw error;
+      }
+    };
+    fetchSale();
+    fetchStore();
+  }, []);
 
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
@@ -191,8 +235,8 @@ function StatisticPage() {
                       <em>Все печенья</em>
                     </MenuItem>
                     {cookies?.data.map((cookie) => (
-                      <MenuItem key={cookie.id} value={cookie.id}>
-                        {cookie.name}
+                      <MenuItem key={cookie.cookie.id} value={cookie.cookie.id}>
+                        {cookie.cookie.name}
                       </MenuItem>
                     ))}
                   </Select>

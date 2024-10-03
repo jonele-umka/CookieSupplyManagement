@@ -20,7 +20,7 @@ const style = {
   borderRadius: 3,
 };
 
-const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
+const ModalAddSale = ({ open, handleClose }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
@@ -29,10 +29,63 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
     handleSubmit,
     reset,
     formState: { errors },
-    setValue, // Функция для программного изменения значений полей
+    setValue,
   } = useForm();
+  const [cookies, setCookies] = useState(null);
+  const [stores, setStores] = useState(null);
 
   const [selectedCookie, setSelectedCookie] = useState(null);
+  
+  useEffect(() => {
+    const fetchSale = async () => {
+      try {
+        const response = await fetch(`http://91.218.140.135:8080/api/sale`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const result = await response.json();
+
+        setCookies(result);
+        return result;
+      } catch (error) {
+        console.error("Fetch sale error:", error.message);
+        throw error;
+      }
+    };
+    const fetchStore = async () => {
+      try {
+        const response = await fetch(`http://91.218.140.135:8080/api/store`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const result = await response.json();
+        console.log("result", result);
+        setStores(result);
+        return result;
+      } catch (error) {
+        console.error("Fetch store error:", error.message);
+        throw error;
+      }
+    };
+    fetchSale();
+    fetchStore();
+  }, []);
 
   useEffect(() => {
     if (cookies && cookies.data?.length > 0) {
@@ -99,8 +152,8 @@ const ModalAddSale = ({ cookies, stores, open, handleClose }) => {
               {cookies &&
                 cookies.data?.length > 0 &&
                 cookies.data.map((cookie) => (
-                  <option key={cookie.id} value={cookie.id}>
-                    {cookie.name}
+                  <option key={cookie.cookie.id} value={cookie.cookie.id}>
+                    {cookie.cookie.name}
                   </option>
                 ))}
             </select>
