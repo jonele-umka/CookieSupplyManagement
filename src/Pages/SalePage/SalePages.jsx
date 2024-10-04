@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import ModalAddSale from "../../components/Modal/ModalAddSale/ModalAddSale";
 import SaleTable from "../../components/Table/SaleTable/SaleTable";
 import { fetchSale } from "../../Store/saleSlice/saleSlice";
-import { fetchCookies } from "../../Store/сookieSlice/cookieSlice";
-import { fetchStore } from "../../Store/storeSlice/storeSlice";
 
 export const SalePages = () => {
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
   const stores = useSelector((state) => state.store.store);
   const sale = useSelector((state) => state.sale.sale);
   const cookies = useSelector((state) => state.cookies.cookies);
@@ -18,10 +18,14 @@ export const SalePages = () => {
   const handleCloseMainModal = () => setModalOpen(false);
 
   useEffect(() => {
-    dispatch(fetchCookies(token));
-    dispatch(fetchStore(token));
-    dispatch(fetchSale(token));
-  }, [token, dispatch]);
+    dispatch(fetchSale({ token, page, pageSize: rowsPerPage }));
+  }, [dispatch, token, page]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const totalCount = sale?.total ? sale.total : 0;
 
   return (
     <div className="page">
@@ -33,7 +37,13 @@ export const SalePages = () => {
           Добавить
         </button>
       </div>
-      <SaleTable sale={sale} token={token} />
+      <SaleTable
+        sale={sale}
+        totalCount={totalCount}
+        handleChangePage={handleChangePage}
+        page={page}
+        rowsPerPage={rowsPerPage}
+      />
       <ModalAddSale
         cookies={cookies}
         stores={stores}

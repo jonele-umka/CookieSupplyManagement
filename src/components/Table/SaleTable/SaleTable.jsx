@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,8 +8,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Pagination from "@mui/material/Pagination";
-import { useDispatch } from "react-redux";
-import { fetchSale } from "../../../Store/saleSlice/saleSlice";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -30,18 +28,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-export default function SaleTable({ sale, token }) {
-  const dispatch = useDispatch();
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
-
-  useEffect(() => {
-    dispatch(fetchSale({ token, page, pageSize: rowsPerPage }));
-  }, [dispatch, token, page]);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+export default function SaleTable({
+  sale,
+  totalCount,
+  handleChangePage,
+  page,
+  rowsPerPage,
+}) {
   return (
     <Paper>
       <TableContainer>
@@ -58,7 +51,7 @@ export default function SaleTable({ sale, token }) {
           </TableHead>
           <TableBody>
             {sale?.data?.map((saleItem, index) => (
-              <StyledTableRow key={index}>
+              <StyledTableRow key={saleItem.id}>
                 <StyledTableCell component="th" scope="row">
                   {(page - 1) * rowsPerPage + index + 1}
                 </StyledTableCell>
@@ -80,14 +73,20 @@ export default function SaleTable({ sale, token }) {
           </TableBody>
         </Table>
       </TableContainer>
-      {/* Пагинация */}
-      <Pagination
-        color="primary"
-        count={Math.ceil((sale?.total || 0) / rowsPerPage)}
-        page={page}
-        onChange={handleChangePage}
-        sx={{ display: "flex", padding: 2 }}
-      />
+      {sale && sale.total > 0 && (
+        <Pagination
+          color="primary"
+          page={page}
+          count={Math.ceil(totalCount / rowsPerPage)}
+          onChange={handleChangePage}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            paddingTop: "10px",
+            paddingBottom: "10px",
+          }}
+        />
+      )}
     </Paper>
   );
 }

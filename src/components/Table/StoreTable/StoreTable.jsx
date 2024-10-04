@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,9 +8,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Pagination from "@mui/material/Pagination";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchStore } from "../../../Store/storeSlice/storeSlice";
-
 import ModalPayments from "../../Modal/ModalPayments/ModalPayments";
 import ModalStoreHistory from "../../Modal/ModalStoreHistory/ModalStoreHistory";
 
@@ -33,62 +30,22 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-export default function StoreTable() {
-  const dispatch = useDispatch();
-  const stores = useSelector((state) => state.store.store);
-  const token = useSelector((state) => state.auth.token);
-  const [page, setPage] = useState(1);
-  const [openModal, setOpenModal] = useState(false);
-  const [storeHistory, setStoreHistory] = useState([]);
-  const [openPaymentModal, setOpenPaymentModal] = useState(false);
-  const [selectedStoreId, setSelectedStoreId] = useState(null);
-  const rowsPerPage = 10;
-
-  useEffect(() => {
-    dispatch(fetchStore({ token, page, pageSize: rowsPerPage }));
-  }, [dispatch, token, page]);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleOpenModal = async (store) => {
-    try {
-      const response = await fetch(
-        `http://91.218.140.135:8080/api/store/${store.id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Ошибка: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setStoreHistory(data);
-      setOpenModal(true);
-    } catch (error) {
-      console.error("Ошибка при загрузке данных истории продаж:", error);
-    }
-  };
-
-  const handleOpenPaymentModal = (store) => {
-    setSelectedStoreId(store.id);
-    setOpenPaymentModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
-
-  const handleClosePaymentModal = () => {
-    setOpenPaymentModal(false);
-  };
-
+export default function StoreTable({
+  openModal,
+  storeHistory,
+  openPaymentModal,
+  selectedStoreId,
+  handleChangePage,
+  handleOpenModal,
+  handleOpenPaymentModal,
+  handleCloseModal,
+  handleClosePaymentModal,
+  totalCount,
+  rowsPerPage,
+  stores,
+  page,
+  token,
+}) {
   return (
     <Paper>
       <TableContainer>
@@ -107,7 +64,7 @@ export default function StoreTable() {
           </TableHead>
           <TableBody>
             {stores?.data?.map((store, index) => (
-              <StyledTableRow key={index}>
+              <StyledTableRow key={store.id}>
                 <StyledTableCell component="th" scope="row">
                   {(page - 1) * rowsPerPage + index + 1}
                 </StyledTableCell>
@@ -161,18 +118,20 @@ export default function StoreTable() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Pagination
-        color="primary"
-        page={page}
-        count={Math.ceil(stores.total / rowsPerPage)}
-        onChange={handleChangePage}
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          paddingTop: "10px",
-          paddingBottom: "10px",
-        }}
-      />
+      {stores && stores.total > 0 && (
+        <Pagination
+          color="primary"
+          page={page}
+          count={Math.ceil(totalCount / rowsPerPage)}
+          onChange={handleChangePage}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            paddingTop: "10px",
+            paddingBottom: "10px",
+          }}
+        />
+      )}
       <ModalStoreHistory
         open={openModal}
         handleClose={handleCloseModal}

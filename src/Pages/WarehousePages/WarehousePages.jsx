@@ -7,16 +7,22 @@ import { fetchCookies } from "../../Store/сookieSlice/cookieSlice";
 export const WarehousePages = () => {
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState(false);
-  const cookies = useSelector((state) => state.cookies.cookies);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
   const token = useSelector((state) => state.auth.token);
+  const cookies = useSelector((state) => state.cookies.cookies);
 
   const handleOpenMainModal = () => setModalOpen(true);
   const handleCloseMainModal = () => setModalOpen(false);
 
   useEffect(() => {
-    dispatch(fetchCookies(token));
-  }, [token, dispatch]);
+    dispatch(fetchCookies({ token, page, pageSize: rowsPerPage }));
+  }, [dispatch, token, page]);
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+  const totalCount = cookies?.total ? cookies.total : 0;
   return (
     <div className="page">
       <h1 className="title">Склад</h1>
@@ -34,7 +40,13 @@ export const WarehousePages = () => {
         </button>
       </div>
 
-      <WarehouseTable cookies={cookies} token={token} />
+      <WarehouseTable
+        cookies={cookies}
+        totalCount={totalCount}
+        handleChangePage={handleChangePage}
+        page={page}
+        rowsPerPage={rowsPerPage}
+      />
       <ModalAddCoockies open={modalOpen} handleClose={handleCloseMainModal} />
     </div>
   );

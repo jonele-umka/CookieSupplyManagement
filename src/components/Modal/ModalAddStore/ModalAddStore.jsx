@@ -3,9 +3,11 @@ import { useForm } from "react-hook-form";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStore, postStore } from "../../../Store/storeSlice/storeSlice";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const style = {
   position: "absolute",
   top: "50%",
@@ -38,6 +40,7 @@ const ModalAddStore = ({ open, handleClose }) => {
             address: data.address,
             contact: data.contact,
             phone_number: data.phone_number,
+            debt: data.debt,
           },
         })
       ).unwrap();
@@ -47,6 +50,7 @@ const ModalAddStore = ({ open, handleClose }) => {
       dispatch(fetchStore({ token, page: 1, pageSize: 10 }));
     } catch (error) {
       console.error("Error submitting data:", error);
+      toast.error(error);
     }
   };
 
@@ -61,68 +65,68 @@ const ModalAddStore = ({ open, handleClose }) => {
         <h1 className="headText">Добавить новый магазин</h1>
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           <div className="formGroup">
-            <label htmlFor="name">Название магазина:</label>
-            <input
-              type="text"
-              id="name"
+            <TextField
+              label="Название магазина"
+              fullWidth
               {...register("name", {
                 required: "Поле обязательна для заполнения",
               })}
+              error={!!errors.name}
+              helperText={errors.name ? errors.name.message : ""}
             />
-            {errors.name && <p className="error">{errors.name.message}</p>}
           </div>
+
           <div className="formGroup">
-            <label htmlFor="address">Адрес:</label>
-            <input
-              type="text"
-              id="address"
+            <TextField
+              label="Адрес"
+              fullWidth
               {...register("address", {
                 required: "Поле обязательна для заполнения",
               })}
+              error={!!errors.address}
+              helperText={errors.address ? errors.address.message : ""}
             />
-            {errors.address && (
-              <p className="error">{errors.address.message}</p>
-            )}
           </div>
 
           <div className="formGroup">
-            <label htmlFor="contact">Контактное лицо:</label>
-            <input
-              type="text"
-              id="contact"
+            <TextField
+              label="Контактное лицо"
+              fullWidth
               {...register("contact", {
                 required: "Поле обязательна для заполнения",
               })}
+              error={!!errors.contact}
+              helperText={errors.contact ? errors.contact.message : ""}
             />
-            {errors.contact && (
-              <p className="error">{errors.contact.message}</p>
-            )}
           </div>
 
           <div className="formGroup">
-            <label htmlFor="phone_number">Номер телефона:</label>
-            <input
-              type="text"
-              id="phone_number"
+            <TextField
+              label="Номер телефона"
+              fullWidth
               {...register("phone_number", {
                 required: "Поле обязательна для заполнения",
               })}
+              error={!!errors.phone_number}
+              helperText={
+                errors.phone_number ? errors.phone_number.message : ""
+              }
             />
-            {errors.phone_number && (
-              <p className="error">{errors.phone_number.message}</p>
-            )}
           </div>
+
           <div className="formGroup formGroupLast">
-            <label htmlFor="debt">Долг:</label>
-            <input
+            <TextField
+              label="Долг"
               type="number"
-              id="debt"
+              fullWidth
               {...register("debt", {
                 required: "Поле обязательна для заполнения",
               })}
+              error={!!errors.debt}
+              helperText={errors.debt ? errors.debt.message : ""}
             />
-            {errors.debt && <p className="error">{errors.debt.message}</p>}
           </div>
+
           <div
             style={{
               display: "flex",

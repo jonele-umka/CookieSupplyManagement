@@ -14,8 +14,11 @@ export const postSale = createAsyncThunk(
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        return rejectWithValue(error.error.Message);
+        const responseDataError = await response.json();
+        const errorMessage =
+          responseDataError.error.Message || "Произошла ошибка";
+
+        return rejectWithValue(errorMessage);
       }
 
       const result = await response.json();
@@ -42,11 +45,15 @@ export const fetchSale = createAsyncThunk(
       );
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        const responseDataError = await response.json();
+        const errorMessage =
+          responseDataError.error.Message || "Произошла ошибка";
+
+        return rejectWithValue(errorMessage);
       }
 
       const result = await response.json();
-      console.log(result);
+
       return result;
     } catch (error) {
       return rejectWithValue(error.message);

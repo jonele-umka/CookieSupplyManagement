@@ -1,34 +1,6 @@
 // src/slices/cookieSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-export const postWeight = createAsyncThunk(
-  "cookies/postWeight",
-  async ({ weight, token }, { rejectWithValue }) => {
-    try {
-      const response = await fetch(
-        "http://91.218.140.135:8080/api/cookie_type",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ weight }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const result = await response.json();
-      console.log("ID", result);
-      return await result;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
 // Асинхронный thunk для отправки данных о новой партии
 export const postCookie = createAsyncThunk(
   "cookies/postCookie",
@@ -44,12 +16,25 @@ export const postCookie = createAsyncThunk(
       });
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        const responseDataError = await response.json();
+
+        // Проверяем код ошибки
+        if (
+          response.status === 400 &&
+          responseDataError.error.Message ===
+            `ERROR: duplicate key value violates unique constraint "uni_cookies_name" (SQLSTATE 23505)`
+        ) {
+          return rejectWithValue("Это название уже существует");
+        }
+
+        const errorMessage =
+          responseDataError.error.Message || "Произошла ошибка";
+
+        return rejectWithValue(errorMessage);
       }
 
       const result = await response.json();
-      console.log("data", result);
-      return await result;
+      return result;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -72,7 +57,11 @@ export const fetchCookies = createAsyncThunk(
       );
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        const responseDataError = await response.json();
+        const errorMessage =
+          responseDataError.error.Message || "Произошла ошибка";
+
+        return rejectWithValue(errorMessage);
       }
 
       const result = await response.json();
@@ -127,18 +116,6 @@ const cookieSlice = createSlice({
         state.cookies.data.push(action.payload);
       })
       .addCase(postCookie.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
-      })
-      // Обработка запроса на создание нового типа печенья по весу
-      .addCase(postWeight.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(postWeight.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.weightId = action.payload.id; // Сохраняем ID нового типа печенья
-      })
-      .addCase(postWeight.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

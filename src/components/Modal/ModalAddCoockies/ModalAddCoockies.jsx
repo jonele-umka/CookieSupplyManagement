@@ -8,7 +8,8 @@ import {
   fetchCookies,
   postCookie,
 } from "../../../Store/сookieSlice/cookieSlice";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const style = {
   position: "absolute",
   top: "50%",
@@ -49,6 +50,7 @@ const ModalAddCoockies = ({ open, handleClose }) => {
       handleClose();
     } catch (error) {
       console.error("Error submitting data:", error);
+      toast.error(error);
     }
   };
 

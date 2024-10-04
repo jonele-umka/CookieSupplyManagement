@@ -145,6 +145,17 @@ function StatisticPage() {
   const date_end = watch("date_end");
   const store_id = watch("store_id");
 
+  // select
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
+  };
   return (
     <div>
       <div className={styles.filter}>
@@ -206,6 +217,7 @@ function StatisticPage() {
                     {...field}
                     labelId="store-select-label"
                     label="Выберите магазин"
+                    MenuProps={MenuProps}
                   >
                     <MenuItem value="">
                       <em>Все магазины</em>
@@ -230,6 +242,7 @@ function StatisticPage() {
                     {...field}
                     labelId="cookie-select-label"
                     label="Выберите печенье"
+                    MenuProps={MenuProps}
                   >
                     <MenuItem value="">
                       <em>Все печенья</em>
