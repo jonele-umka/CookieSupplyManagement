@@ -37,16 +37,17 @@ const ModalAddSale = ({ open, handleClose }) => {
     reset,
     formState: { errors },
     setValue,
+    clearErrors,
   } = useForm();
   const [cookies, setCookies] = useState(null);
   const [stores, setStores] = useState(null);
 
-  const [selectedCookie, setSelectedCookie] = useState(null); // хранит текущее выбранное печенье
+  const [selectedCookie, setSelectedCookie] = useState(null);
 
   useEffect(() => {
-    const fetchSale = async () => {
+    const fetchCookies = async () => {
       try {
-        const response = await fetch(`http://91.218.140.135:8080/api/sale`, {
+        const response = await fetch(`http://91.218.140.135:8080/api/cookie`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -59,6 +60,7 @@ const ModalAddSale = ({ open, handleClose }) => {
         }
 
         const result = await response.json();
+        console.log(result);
         setCookies(result);
         return result;
       } catch (error) {
@@ -88,19 +90,27 @@ const ModalAddSale = ({ open, handleClose }) => {
         throw error;
       }
     };
-    fetchSale();
+
+    fetchCookies();
     fetchStore();
   }, []);
 
   useEffect(() => {
-    // При загрузке данных, выбираем первое печенье и обновляем состояние
     if (cookies && cookies.data?.length > 0) {
-      const firstCookie = cookies.data[0].cookie;
-      setSelectedCookie(firstCookie.id); // Устанавливаем id первого печенья
-      setValue("price_per_unit", firstCookie.price); // Устанавливаем цену для первого печенья
-      setValue("cookie_id", firstCookie.id); // Устанавливаем id первого печенья в форме
+      const firstCookie = cookies.data[0]; // Выбираем первое печенье
+      setSelectedCookie(firstCookie); // Сохраняем весь объект печенья
+      setValue("price_per_unit", firstCookie.price); // Устанавливаем цену
+      setValue("cookie_id", firstCookie.id); // Устанавливаем id печенья
     }
-  }, [cookies, setValue]);
+  }, [cookies, setValue]); // Этот эффект вызывается после загрузки cookies
+
+  useEffect(() => {
+    // Убедитесь, что есть магазины
+    if (stores && stores.data?.length > 0) {
+      // Устанавливаем значение по умолчанию на ID первого магазина
+      setValue("store_id", stores.data[0].id);
+    }
+  }, [stores, setValue]);
 
   const onSubmit = async (data) => {
     try {
@@ -136,16 +146,26 @@ const ModalAddSale = ({ open, handleClose }) => {
       },
     },
   };
+
   const handleCookieChange = (event) => {
     const cookieId = parseInt(event.target.value);
-    const cookie = cookies.data.find((cookie) => cookie.cookie.id === cookieId);
-    if (cookie) {
-      setSelectedCookie(cookieId); // Обновляем состояние выбранного печенья
-      setValue("price_per_unit", cookie.cookie.price); // Обновляем цену для выбранного печенья
+    const selected = cookies.data.find((cookie) => cookie.id === cookieId); // Находим объект cookie
+
+    if (selected) {
+      setSelectedCookie(selected); // Сохраняем объект печенья
+      setValue("price_per_unit", selected.price); // Устанавливаем цену
+      setValue("cookie_id", selected.id); // Устанавливаем id печенья
     }
   };
 
   const today = new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    if (open) {
+      reset(); // Сброс формы при открытии
+      clearErrors(); // Очистка ошибок валидации
+    }
+  }, [open, reset, clearErrors]);
 
   return (
     <Modal
@@ -163,7 +183,7 @@ const ModalAddSale = ({ open, handleClose }) => {
               labelId="cookie_id_label"
               id="cookie_id"
               label="Название печенья"
-              value={selectedCookie || ""} // Устанавливаем выбранное значение
+              value={selectedCookie ? selectedCookie.id : ""} // Устанавливаем выбранное значение
               {...register("cookie_id", {
                 required: "Поле обязательна для заполнения",
               })}
@@ -173,8 +193,8 @@ const ModalAddSale = ({ open, handleClose }) => {
               {cookies &&
                 cookies.data?.length > 0 &&
                 cookies.data.map((cookie) => (
-                  <MenuItem key={cookie.cookie.id} value={cookie.cookie.id}>
-                    {cookie.cookie.name}
+                  <MenuItem key={cookie.id} value={cookie.id}>
+                    {cookie.name}
                   </MenuItem>
                 ))}
             </Select>
@@ -182,16 +202,19 @@ const ModalAddSale = ({ open, handleClose }) => {
               <p className="error">{errors.cookie_id.message}</p>
             )}
           </FormControl>
+
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="store_id_label">Название магазина</InputLabel>
             <Select
               labelId="store_id_label"
               id="store_id"
               label="Название магазина"
-              MenuProps={MenuProps}
+              defaultValue={stores?.data.length > 0 ? stores?.data[0].id : ""} // Установите значение по умолчанию
               {...register("store_id", {
                 required: "Поле обязательна для заполнения",
               })}
+              onChange={(e) => setValue("store_id", e.target.value)}
+              MenuProps={MenuProps}
             >
               {stores &&
                 stores.data?.length > 0 &&
@@ -211,7 +234,7 @@ const ModalAddSale = ({ open, handleClose }) => {
             id="price_per_unit"
             label="Цена за единицу"
             type="number"
-            value={selectedCookie ? selectedCookie.price : ""}
+            value={selectedCookie?.price || ""} // Проверяем, есть ли объект печенья, иначе пустая строка
             {...register("price_per_unit", {
               required: "Поле обязательна для заполнения",
               valueAsNumber: true,

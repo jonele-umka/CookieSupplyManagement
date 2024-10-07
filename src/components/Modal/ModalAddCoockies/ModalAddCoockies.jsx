@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField"; // Импортируйте TextField
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCookies,
@@ -10,6 +11,7 @@ import {
 } from "../../../Store/сookieSlice/cookieSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -50,7 +52,7 @@ const ModalAddCoockies = ({ open, handleClose }) => {
       handleClose();
     } catch (error) {
       console.error("Error submitting data:", error);
-      toast.error(error);
+      toast.error(error.message);
     }
   };
 
@@ -65,28 +67,35 @@ const ModalAddCoockies = ({ open, handleClose }) => {
         <h1 className="headText">Добавить </h1>
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           <div className="formGroup">
-            <label htmlFor="name">Вид печенья (название):</label>
-            <input
-              type="text"
+            <TextField
+              label="Вид печенья (название)"
               id="name"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               {...register("name", {
                 required: "Поле обязательна для заполнения",
               })}
+              error={!!errors.name}
+              helperText={errors.name ? errors.name.message : ""}
             />
-            {errors.name && <p className="error">{errors.name.message}</p>}
           </div>
 
           <div className="formGroup">
-            <label htmlFor="price">Цена:</label>
-            <input
-              type="number"
+            <TextField
+              label="Цена"
               id="price"
+              type="number"
+              variant="outlined"
+              fullWidth
+              margin="normal"
               {...register("price", {
                 required: "Поле обязательна для заполнения",
                 valueAsNumber: true,
               })}
+              error={!!errors.price}
+              helperText={errors.price ? errors.price.message : ""}
             />
-            {errors.price && <p className="error">{errors.price.message}</p>}
           </div>
 
           <div
