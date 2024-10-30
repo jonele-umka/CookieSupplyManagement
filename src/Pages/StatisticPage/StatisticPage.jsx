@@ -23,7 +23,7 @@ function StatisticPage() {
   useEffect(() => {
     const fetchSale = async () => {
       try {
-        const response = await fetch(`http://91.218.140.135:8080/api/sale`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/sale`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -69,7 +69,7 @@ function StatisticPage() {
     };
     fetchSale();
     fetchStore();
-  }, []);
+  }, [token]);
 
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {

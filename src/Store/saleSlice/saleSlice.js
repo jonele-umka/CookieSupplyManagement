@@ -4,14 +4,17 @@ export const postSale = createAsyncThunk(
   "sale/postSale",
   async ({ token, saleData }, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://91.218.140.135:8080/api/sale", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(saleData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/sale`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(saleData),
+        }
+      );
 
       if (!response.ok) {
         const responseDataError = await response.json();
@@ -34,7 +37,7 @@ export const fetchSale = createAsyncThunk(
   async ({ token, page, pageSize }, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        `http://91.218.140.135:8080/api/sale?page_size=${pageSize}&page=${page}`,
+        `${process.env.REACT_APP_API_URL}/api/sale?page_size=${pageSize}&page=${page}`,
         {
           method: "GET",
           headers: {

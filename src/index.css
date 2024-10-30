@@ -184,7 +184,7 @@ input[type="number"] {
   .totalBlock {
     flex-direction: column;
     row-gap: 20px;
-    align-items: flex-start;
+    align-items: flex-end;
   }
   .title {
     font-size: 20px;

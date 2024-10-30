@@ -40,7 +40,7 @@ const ChartCookies = ({ date_start, date_end, store_id }) => {
     const fetchSalesDataByCookie = async () => {
       try {
         const response = await fetch(
-          `http://91.218.140.135:8080/api/statistics/sales_data_by_cookie?date_start=${date_start}&date_end=${date_end}`,
+          `${process.env.REACT_APP_API_URL}/api/statistics/sales_data_by_cookie?date_start=${date_start}&date_end=${date_end}`,
           {
             headers: {
               "Content-Type": "application/json",

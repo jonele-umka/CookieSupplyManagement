@@ -45,12 +45,15 @@ const ModalAddStore = ({ open, handleClose }) => {
         })
       ).unwrap();
 
+      dispatch(fetchStore({ token, page: 1, pageSize: 10 }));
+
       reset();
       handleClose();
-      dispatch(fetchStore({ token, page: 1, pageSize: 10 }));
+
+      toast.success("Магазин успешно добавлен!");
     } catch (error) {
-      console.error("Error submitting data:", error);
-      toast.error(error);
+      console.error("Ошибка при добавлении магазина:", error);
+      toast.error("Произошла ошибка при добавлении магазина.");
     }
   };
 

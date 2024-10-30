@@ -13,6 +13,8 @@ import {
   MenuItem,
   Select,
   TextField,
+  Checkbox,
+  ListItemText,
 } from "@mui/material";
 
 const style = {
@@ -20,7 +22,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { xs: "90%", sm: 400 },
+  width: { xs: "90%", sm: 500 },
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
@@ -36,38 +38,39 @@ const ModalAddSale = ({ open, handleClose }) => {
     handleSubmit,
     reset,
     formState: { errors },
-    setValue,
     clearErrors,
   } = useForm();
-  const [cookies, setCookies] = useState(null);
-  const [stores, setStores] = useState(null);
 
-  const [selectedCookie, setSelectedCookie] = useState(null);
+  const [cookies, setCookies] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [selectedStore, setSelectedStore] = useState(null); // Хранит выбранный магазин
+  const [selectedCookies, setSelectedCookies] = useState([]); // Хранит выбранные печенья
 
   useEffect(() => {
     const fetchCookies = async () => {
       try {
-        const response = await fetch(`http://91.218.140.135:8080/api/cookie`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/cookie`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
 
         const result = await response.json();
-        console.log(result);
-        setCookies(result);
-        return result;
+        setCookies(result.data || []);
       } catch (error) {
-        console.error("Fetch sale error:", error.message);
-        throw error;
+        console.error("Fetch cookie error:", error.message);
       }
     };
+
     const fetchStore = async () => {
       try {
         const response = await fetch(`http://91.218.140.135:8080/api/store`, {
@@ -83,78 +86,46 @@ const ModalAddSale = ({ open, handleClose }) => {
         }
 
         const result = await response.json();
-        setStores(result);
-        return result;
+        setStores(result.data || []);
       } catch (error) {
         console.error("Fetch store error:", error.message);
-        throw error;
       }
     };
 
     fetchCookies();
     fetchStore();
-  }, []);
+  }, [token]);
 
-  useEffect(() => {
-    if (cookies && cookies.data?.length > 0) {
-      const firstCookie = cookies.data[0]; // Выбираем первое печенье
-      setSelectedCookie(firstCookie); // Сохраняем весь объект печенья
-      setValue("price_per_unit", firstCookie.price); // Устанавливаем цену
-      setValue("cookie_id", firstCookie.id); // Устанавливаем id печенья
-    }
-  }, [cookies, setValue]); // Этот эффект вызывается после загрузки cookies
+  const handleStoreChange = (event) => {
+    setSelectedStore(event.target.value); // Устанавливаем выбранный магазин
+  };
 
-  useEffect(() => {
-    // Убедитесь, что есть магазины
-    if (stores && stores.data?.length > 0) {
-      // Устанавливаем значение по умолчанию на ID первого магазина
-      setValue("store_id", stores.data[0].id);
-    }
-  }, [stores, setValue]);
+  const handleCookieChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedCookies(value); // Устанавливаем выбранные печенья
+  };
 
   const onSubmit = async (data) => {
     try {
-      await dispatch(
-        postSale({
-          token,
-          saleData: {
-            cookie_id: parseInt(data.cookie_id),
-            store_id: parseInt(data.store_id),
-            quantity: data.quantity,
-            date: data.date,
-            price_per_unit: data.price_per_unit,
-          },
-        })
-      ).unwrap();
+      // Создаем массив с данными о продаже для каждого выбранного печенья
+      const saleData = selectedCookies.map((cookieId) => ({
+        cookie_id: parseInt(cookieId),
+        store_id: parseInt(selectedStore), // Используем только один выбранный магазин
+        quantity: data[`quantity_${cookieId}`] || 0,
+        date: data.date,
+        price_per_unit: data[`price_per_unit_${cookieId}`] || 0,
+      }));
+
+      await dispatch(postSale({ token, saleData })).unwrap();
 
       reset();
       handleClose();
       dispatch(fetchSale({ token, page: 1, pageSize: 10 }));
     } catch (error) {
       console.error("Error submitting data:", error);
-      toast.error(error);
-    }
-  };
-  // select
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
-    },
-  };
-
-  const handleCookieChange = (event) => {
-    const cookieId = parseInt(event.target.value);
-    const selected = cookies.data.find((cookie) => cookie.id === cookieId); // Находим объект cookie
-
-    if (selected) {
-      setSelectedCookie(selected); // Сохраняем объект печенья
-      setValue("price_per_unit", selected.price); // Устанавливаем цену
-      setValue("cookie_id", selected.id); // Устанавливаем id печенья
+      toast.error(error.message);
     }
   };
 
@@ -164,6 +135,8 @@ const ModalAddSale = ({ open, handleClose }) => {
     if (open) {
       reset(); // Сброс формы при открытии
       clearErrors(); // Очистка ошибок валидации
+      setSelectedStore(null); // Сброс выбранного магазина
+      setSelectedCookies([]); // Сброс выбранных печений
     }
   }, [open, reset, clearErrors]);
 
@@ -178,85 +151,138 @@ const ModalAddSale = ({ open, handleClose }) => {
         <h1 className="headText">Добавить</h1>
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel id="cookie_id_label">Название печенья</InputLabel>
-            <Select
-              labelId="cookie_id_label"
-              id="cookie_id"
-              label="Название печенья"
-              value={selectedCookie ? selectedCookie.id : ""} // Устанавливаем выбранное значение
-              {...register("cookie_id", {
-                required: "Поле обязательна для заполнения",
-              })}
-              onChange={handleCookieChange}
-              MenuProps={MenuProps}
-            >
-              {cookies &&
-                cookies.data?.length > 0 &&
-                cookies.data.map((cookie) => (
-                  <MenuItem key={cookie.id} value={cookie.id}>
-                    {cookie.name}
-                  </MenuItem>
-                ))}
-            </Select>
-            {errors.cookie_id && (
-              <p className="error">{errors.cookie_id.message}</p>
-            )}
-          </FormControl>
-
-          <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="store_id_label">Название магазина</InputLabel>
             <Select
               labelId="store_id_label"
               id="store_id"
               label="Название магазина"
-              defaultValue={stores?.data.length > 0 ? stores?.data[0].id : ""} // Установите значение по умолчанию
-              {...register("store_id", {
-                required: "Поле обязательна для заполнения",
-              })}
-              onChange={(e) => setValue("store_id", e.target.value)}
-              MenuProps={MenuProps}
+              value={selectedStore || ""}
+              onChange={handleStoreChange}
+              MenuProps={{
+                PaperProps: { style: { maxHeight: 48 * 4.5 + 8, width: 250 } },
+              }}
             >
-              {stores &&
-                stores.data?.length > 0 &&
-                stores.data.map((store) => (
-                  <MenuItem key={store.id} value={store.id}>
-                    {store.name}
-                  </MenuItem>
-                ))}
+              {stores.map((store) => (
+                <MenuItem key={store.id} value={store.id}>
+                  {store.name}
+                </MenuItem>
+              ))}
             </Select>
             {errors.store_id && (
               <p className="error">{errors.store_id.message}</p>
             )}
           </FormControl>
 
-          <TextField
-            fullWidth
-            id="price_per_unit"
-            label="Цена за единицу"
-            type="number"
-            value={selectedCookie?.price || ""} // Проверяем, есть ли объект печенья, иначе пустая строка
-            {...register("price_per_unit", {
-              required: "Поле обязательна для заполнения",
-              valueAsNumber: true,
-            })}
-            error={!!errors.price_per_unit}
-            helperText={errors.price_per_unit?.message}
-            sx={{ mb: 2 }}
-          />
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel id="cookie_id_label">Выбор печений</InputLabel>
+            <Select
+              labelId="cookie_id_label"
+              id="cookie_id"
+              label="Выбор печений"
+              multiple
+              value={selectedCookies}
+              onChange={handleCookieChange}
+              renderValue={(selected) => {
+                const selectedNames = selected.map((id) => {
+                  const cookie = cookies.find((c) => c.id === id);
+                  return cookie ? cookie.name : "";
+                });
+                return selectedNames.join(", "); // Отображение названий выбранных печений
+              }}
+              MenuProps={{
+                PaperProps: { style: { maxHeight: 48 * 4.5 + 8, width: 250 } },
+              }}
+            >
+              {cookies.map((cookie) => (
+                <MenuItem key={cookie.id} value={cookie.id}>
+                  <Checkbox checked={selectedCookies.indexOf(cookie.id) > -1} />
+                  <ListItemText primary={cookie.name} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          <TextField
-            fullWidth
-            id="quantity"
-            label="Количество"
-            type="number"
-            {...register("quantity", {
-              required: "Поле обязательна для заполнения",
-              valueAsNumber: true,
-            })}
-            error={!!errors.quantity}
-            helperText={errors.quantity?.message}
-            sx={{ mb: 2 }}
-          />
+          {selectedCookies && selectedCookies.length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                flexDirection: "column",
+                marginBottom: 20,
+                height: 150,
+                overflow: "auto",
+                border: "1px solid #e8e8e8",
+                borderRadius: 5,
+              }}
+            >
+              {selectedCookies.map((cookieId) => {
+                const cookie = cookies.find((cookie) => cookie.id === cookieId);
+                return (
+                  <div
+                    key={cookieId}
+                    style={{
+                      border: "1px solid #e8e8e8",
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "10px",
+                      gap: "10px",
+                      borderRadius: 5,
+                      background: "#f0f0f0",
+                    }}
+                  >
+                    <p style={{ marginRight: "10px" }}>{cookie?.name}</p>
+
+                    <input
+                      type="number"
+                      placeholder="Цена за единицу"
+                      {...register(`price_per_unit_${cookieId}`, {
+                        required: "Поле обязательна для заполнения",
+                        valueAsNumber: true,
+                      })}
+                      defaultValue={cookie?.price} // Используем defaultValue вместо value
+                      style={{
+                        background: "#fff",
+                        margin: 0,
+                        padding: "10px 5px",
+                        border: "1px solid",
+                        borderColor: errors[`price_per_unit_${cookieId}`]
+                          ? "red"
+                          : "#ccc",
+                      }}
+                    />
+                    {errors[`price_per_unit_${cookieId}`] && (
+                      <span style={{ color: "red" }}>
+                        {errors[`price_per_unit_${cookieId}`]?.message}
+                      </span>
+                    )}
+
+                    <input
+                      type="number"
+                      placeholder="Количество"
+                      {...register(`quantity_${cookieId}`, {
+                        required: "Поле обязательна для заполнения",
+                        valueAsNumber: true,
+                      })}
+                      style={{
+                        background: "#fff",
+                        margin: 0,
+                        padding: "10px 5px",
+                        border: "1px solid",
+                        borderColor: errors[`quantity_${cookieId}`]
+                          ? "red"
+                          : "#ccc",
+                      }}
+                    />
+                    {errors[`quantity_${cookieId}`] && (
+                      <span style={{ color: "red" }}>
+                        {errors[`quantity_${cookieId}`]?.message}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <TextField
             fullWidth
@@ -267,25 +293,14 @@ const ModalAddSale = ({ open, handleClose }) => {
             {...register("date", {
               required: "Поле обязательна для заполнения",
             })}
-            InputLabelProps={{
-              shrink: true,
-            }}
             error={!!errors.date}
             helperText={errors.date?.message}
             sx={{ mb: 2 }}
           />
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginTop: 30,
-            }}
-          >
-            <Button type="submit" variant="contained" color="primary">
-              Добавить
-            </Button>
-          </div>
+          <Button type="submit" variant="contained" color="primary">
+            Добавить
+          </Button>
         </form>
       </Box>
     </Modal>

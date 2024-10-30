@@ -29,10 +29,20 @@ export const StoresPages = () => {
     setPage(newPage);
   };
 
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+  const handleOpenPaymentModal = (store) => {
+    setSelectedStoreId(store.id);
+    setOpenPaymentModal(true);
+  };
+  const handleClosePaymentModal = () => {
+    setOpenPaymentModal(false);
+  };
   const handleOpenModal = async (store) => {
     try {
       const response = await fetch(
-        `http://91.218.140.135:8080/api/store/${store.id}`,
+        `${process.env.REACT_APP_API_URL}/api/store/${store.id}`,
         {
           method: "GET",
           headers: {
@@ -51,19 +61,6 @@ export const StoresPages = () => {
     } catch (error) {
       console.error("Ошибка при загрузке данных истории продаж:", error);
     }
-  };
-
-  const handleOpenPaymentModal = (store) => {
-    setSelectedStoreId(store.id);
-    setOpenPaymentModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
-
-  const handleClosePaymentModal = () => {
-    setOpenPaymentModal(false);
   };
   const totalCount = stores?.total ? stores.total : 0;
 

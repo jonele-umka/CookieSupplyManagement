@@ -51,7 +51,7 @@ function Filter({ setStatisticsData }) {
   const fetchStatistics = async (date_start, date_end, store_id, cookie_id) => {
     try {
       const response = await fetch(
-        `http://91.218.140.135:8080/api/statistics/base_info?date_start=${date_start}&date_end=${date_end}&store_id=${store_id}&cookie_id=${cookie_id}`,
+        `${process.env.REACT_APP_API_URL}/api/statistics/base_info?date_start=${date_start}&date_end=${date_end}&store_id=${store_id}&cookie_id=${cookie_id}`,
         {
           method: "GET",
           headers: {

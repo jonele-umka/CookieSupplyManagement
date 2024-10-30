@@ -5,14 +5,17 @@ export const postStore = createAsyncThunk(
   "store/postStore",
   async ({ token, storeData }, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://91.218.140.135:8080/api/store", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(storeData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/store`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(storeData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -32,7 +35,7 @@ export const fetchStore = createAsyncThunk(
   async ({ token, page, pageSize }, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        `http://91.218.140.135:8080/api/store?page_size=${pageSize}&page=${page}`,
+        `${process.env.REACT_APP_API_URL}/api/store?page_size=${pageSize}&page=${page}`,
         {
           method: "GET",
           headers: {
@@ -85,7 +88,6 @@ const storeSlice = createSlice({
       })
       .addCase(postStore.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // Проверяем, что store является массивом
         if (Array.isArray(state.store)) {
           state.store.push(action.payload);
         } else {

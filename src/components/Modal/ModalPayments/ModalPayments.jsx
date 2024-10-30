@@ -31,7 +31,7 @@ const ModalPayments = ({ open, handleClose, storeId, token }) => {
     };
 
     try {
-      const response = await fetch("http://91.218.140.135:8080/api/payment", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ const ModalPayments = ({ open, handleClose, storeId, token }) => {
       if (!response.ok) {
         throw new Error(`Ошибка: ${response.status}`);
       }
-      window.location.reload();
+   
       handleClose();
       reset();
     } catch (error) {

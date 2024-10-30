@@ -23,7 +23,6 @@ import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
 import PointOfSaleRoundedIcon from "@mui/icons-material/PointOfSaleRounded";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import Button from "@mui/material/Button";
 import ProfilePage from "../../Pages/ProfilePage/ProfilePage";
 
 const drawerWidth = 240;
@@ -51,6 +50,10 @@ function ResponsiveDrawer(props) {
 
   const handleMenuItemClick = (index) => {
     setSelectedIndex(index);
+
+    if (mobileOpen) {
+      handleDrawerClose();
+    }
   };
 
   const drawer = (
@@ -107,7 +110,7 @@ function ResponsiveDrawer(props) {
           }}
         >
           <Typography variant="h6" noWrap component="div">
-            Responsive drawer
+            Койчиев Акылбек
           </Typography>
           <IconButton
             color="inherit"

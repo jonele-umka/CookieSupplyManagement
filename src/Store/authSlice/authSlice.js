@@ -9,7 +9,7 @@ export const loginUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await fetch(
-        `http://91.218.140.135:8080/api/user/login`,
+        `${process.env.REACT_APP_API_URL}/api/user/login`,
         {
           method: "POST",
           headers: {
@@ -49,7 +49,7 @@ export const logoutUser = createAsyncThunk(
     try {
       const token = await localStorage.getItem("token");
 
-      const response = await fetch(`${API_URL}/api/auth/logout`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,16 +91,15 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-       
         state.token = action.payload.token;
         state.userProfile = action.payload.username;
         state.loading = false;
       })
       .addCase(loginUser.rejected, (state, action) => {
-        console.log('fefe',action.payload)
+        console.log("fefe", action.payload);
         state.loading = false;
         state.error = action.payload;
-        toast.error(`Ошибка авторизации: ${action.payload}`);   
+        toast.error(`Ошибка авторизации: ${action.payload}`);
       })
 
       .addCase(logoutUser.pending, (state) => {
@@ -110,12 +109,12 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.loading = false;
         state.token = null;
-        toast.success("Вы успешно вышли из системы");  
+        toast.success("Вы успешно вышли из системы");
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        toast.error(`Ошибка выхода: ${action.payload}`);   
+        toast.error(`Ошибка выхода: ${action.payload}`);
       });
   },
 });
